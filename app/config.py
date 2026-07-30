@@ -15,6 +15,13 @@ DATA_DIR = BASE_DIR / "data"
 AIRPORTS_CSV = DATA_DIR / "airports.csv"
 DESTINATIONS_CSV = DATA_DIR / "destinations.csv"
 
+# A postal code's geocode viewport wider than this (km) is treated as "covers a vast rural
+# area, re-geocode by locality name for a much more accurate point" (see
+# GoogleMapsProvider.geocode). Ordinary postal codes -- urban or small-town -- are well
+# under 1km across even when Google marks them "APPROXIMATE"; genuinely remote far-north
+# FSAs can be 100+ km across. 15km sits comfortably between the two.
+GEOCODE_REFINE_VIEWPORT_KM = 15.0
+
 # --- Routing provider (Google Maps Platform; see routing_provider.py) ---
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAP_API_KEY")
 GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json"

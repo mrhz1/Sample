@@ -41,6 +41,7 @@ from zoneinfo import ZoneInfo
 import httpx
 
 from . import config
+from .geo_utils import haversine_km
 
 
 def _next_transit_departure_iso() -> str:
@@ -79,8 +80,6 @@ class GoogleMapsProvider(RoutingProvider):
             raise RuntimeError("GOOGLE_MAP_API_KEY is not set in .env")
         self.timeout = timeout
 
-    _PRECISE_LOCATION_TYPES = ("ROOFTOP", "RANGE_INTERPOLATED")
-
     def _geocode_raw(self, query: str) -> dict:
         params = {
             "address": query,
@@ -103,9 +102,24 @@ class GoogleMapsProvider(RoutingProvider):
             "lng": location["lng"],
             "formatted_address": result.get("formatted_address"),
             "place_id": result.get("place_id"),
-            "location_type": result["geometry"].get("location_type"),
+            "viewport_span_km": self._viewport_span_km(result["geometry"].get("viewport")),
             "locality": self._extract_locality(result.get("address_components", [])),
         }
+
+    @staticmethod
+    def _viewport_span_km(viewport: dict | None) -> float:
+        """How large an area this geocode result actually covers. `location_type` alone
+        can't tell a genuinely vast rural postal code (100+ km across) apart from an
+        ordinary tight urban one -- Google marks both APPROXIMATE. A North York postal
+        code's viewport is ~0.4 km across; a remote far-north FSA's can be 150+ km."""
+        if not viewport:
+            return 0.0
+        ne, sw = viewport.get("northeast", {}), viewport.get("southwest", {})
+        if not ne or not sw:
+            return 0.0
+        width_km = haversine_km(ne["lat"], sw["lng"], ne["lat"], ne["lng"])
+        height_km = haversine_km(ne["lat"], sw["lng"], sw["lat"], sw["lng"])
+        return max(width_km, height_km)
 
     @staticmethod
     def _extract_locality(address_components: list[dict]) -> str | None:
@@ -122,14 +136,15 @@ class GoogleMapsProvider(RoutingProvider):
         result = self._geocode_raw(postal_code)
         if not result["available"]:
             return result
-        # Postal codes covering large/rural areas often geocode to an APPROXIMATE centroid
-        # that can be tens of km from where anyone actually lives (e.g. off in the bush
-        # near a remote community) -- if imprecise and Google told us which town/community
-        # this postal code belongs to, re-geocode that name directly for a far more
-        # accurate point to search for roads/airports around.
-        if result["location_type"] not in self._PRECISE_LOCATION_TYPES and result.get("locality"):
+        # Postal codes covering vast rural areas can geocode to a centroid tens of km from
+        # where anyone actually lives (e.g. off in the bush near a remote community) -- if
+        # the covered area is large and Google told us which town/community this postal
+        # code belongs to, re-geocode that name directly for a far more accurate point to
+        # search for roads/airports around. An ordinary tight urban postal code (covering
+        # well under a km) is left alone even though Google also marks it "APPROXIMATE".
+        if result["viewport_span_km"] > config.GEOCODE_REFINE_VIEWPORT_KM and result.get("locality"):
             refined = self._geocode_raw(f"{result['locality']}, Ontario, Canada")
-            if refined["available"]:
+            if refined["available"] and refined["viewport_span_km"] < result["viewport_span_km"]:
                 return refined
         return result
 
