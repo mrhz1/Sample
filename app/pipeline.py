@@ -75,8 +75,8 @@ def load_destinations() -> list[dict]:
 DESTINATIONS = load_destinations()
 
 
-def _empty_location(name: str, error: str = "") -> dict:
-    return {"name": name, **{f: None for f in LOCATION_FIELDS}, "flyover_details": None, "error": error}
+def _empty_location(name: str, address: str, error: str = "") -> dict:
+    return {"name": name, "address": address, **{f: None for f in LOCATION_FIELDS}, "flyover_details": None, "error": error}
 
 
 def process_postal_code(postal_code: str, provider: RoutingProvider) -> dict:
@@ -86,7 +86,7 @@ def process_postal_code(postal_code: str, provider: RoutingProvider) -> dict:
             "postal_code": postal_code,
             "error": f"geocoding failed: {geocode['reason']}",
             "origin": None,
-            "locations": [_empty_location(d["name"]) for d in DESTINATIONS],
+            "locations": [_empty_location(d["name"], d["address"]) for d in DESTINATIONS],
         }
 
     origin_lat, origin_lng = geocode["lat"], geocode["lng"]
@@ -140,7 +140,7 @@ def process_postal_code(postal_code: str, provider: RoutingProvider) -> dict:
 
     locations = []
     for dest, dest_point, dest_airport, drive, transit in zip(DESTINATIONS, dest_points, dest_airports, drive_results, transit_results):
-        loc = _empty_location(dest["name"])
+        loc = _empty_location(dest["name"], dest["address"])
         errors = []
 
         if drive["available"]:
