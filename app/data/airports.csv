@@ -1,0 +1,28 @@
+iata,name,city,latitude,longitude,notes,place_id
+XKS,Kasabonika Airport,Kasabonika,53.52470016479492,-88.6427993774414,,ChIJb508NrhlfE0RFzZConB6plE
+YAG,Fort Frances Municipal Airport,Fort Frances,48.655749,-93.44349,,ChIJc6dfIA9-u1IRccGnHplYTJo
+YAM,Sault Ste Marie Airport,Sault Ste Marie,46.483216,-84.508467,,ChIJDRpYze0kNk0RjkFeJ12xxIE
+YCM,Niagara District Airport,Niagara-on-the-Lake,43.191598,-79.171686,,ChIJtYNdzddC04kRR7a7kEd1WXM
+YHM,John C. Munro Hamilton International Airport,Hamilton,43.17348,-79.931185,,ChIJXwF5ncOPLIgRPLttsEGrOmI
+YKF,Region of Waterloo International Airport,Breslau,43.4608,-80.378601,,ChIJDdPMhveLK4gRROLspTQU1NE
+YLK,Barrie-Lake Simcoe Regional Airport,Barrie,44.485056,-79.554663,,ChIJRfGD3X2oKogRg_1IEMi1lec
+YMO,Moosonee Airport,Moosonee,51.291099548339844,-80.60780334472656,,ChIJYdET_fG_EE0RHp1nZ55sT-Q
+YOW,Ottawa Macdonald-Cartier International Airport,Ottawa,45.322498,-75.669197,,ChIJ4QbSBj8IzkwRGi0ILu03_VA
+YPL,Pickle Lake Airport,Pickle Lake,51.4463996887207,-90.21420288085938,,ChIJCwy9_5PknVIRYqBAr6I1HCM
+YPQ,Peterborough Regional Airport,Peterborough,44.232251,-78.362053,,ChIJnXC_ID-S1YkRyODz82bJ3_0
+YQA,Muskoka Airport,Gravenhurst,44.975376,-79.306546,,ChIJG2g0yYSEKk0RBKVhCaV8Wss
+YQG,Windsor International Airport,Windsor,42.2756,-82.955597,,ChIJebrO9ckrO4gR4aKo1gSO8fA
+YQK,Kenora Airport,Kenora,49.788299560546875,-94.36309814453125,,ChIJDcKY9rj8vVIR-lMiJlevuxs
+YQN,Nakina Airport,Nakina,50.18280029296875,-86.69640350341797,,ChIJQUw63a-3Qk0RbTgFMLL_-Sc
+YQT,Thunder Bay International Airport,Thunder Bay,48.371899,-89.323898,,ChIJFcSVWCfgWE0RufdV3V5F414
+YRL,Red Lake Airport,Red Lake,51.066898345947266,-93.79309844970703,,ChIJOaGpb_0ml1IRXgC1jwm6ClI
+YRO,Ottawa / Rockcliffe Airport,Ottawa,45.460496,-75.644001,OurAirports flags scheduled_service=yes but this is a GA-only field (flying clubs / aviation museum) -- no real scheduled passenger service confirmed. VERIFY.,ChIJgxHQR7cazkwRMCIRAYU86vQ
+YSB,Sudbury Airport,Sudbury,46.625,-80.79889678955078,,ChIJhd1cB0EPL00RiAQeQRKo4RQ
+YTS,Timmins/Victor M. Power,Timmins,48.569698333699996,-81.376701355,,ChIJiVk9j0S7PE0RRZ3GtpHcBbI
+YTZ,Billy Bishop Toronto City Airport,Toronto,43.627852,-79.39553,,ChIJB6GTVSM1K4gRdMRgJYiBKAQ
+YVV,Wiarton Airport,Wiarton,44.7458,-81.107201,,ChIJnytTs6jKLE0RV1vcx-DVoDo
+YXL,Sioux Lookout Airport,Sioux Lookout,50.11389923095703,-91.9052963256836,,ChIJURDzsmWZmFIRL4tEyqaUy8k
+YXU,London International Airport,London,43.032845,-81.149003,,ChIJOfcJ5iWTLogRj6cLS9-4J2s
+YYB,North Bay Jack Garland Airport,North Bay,46.363602,-79.422798,,ChIJ4YIVXxJVKE0Ri4O0XxLzud0
+YYZ,Toronto Pearson International Airport,Toronto,43.675935,-79.629421,,ChIJkdQtwEo5K4gRxQ4DxOldHbQ
+ZSJ,Sandy Lake Airport,Sandy Lake,53.06420135498047,-93.34439849853516,,ChIJq3KwTEVghVIReOYiiXGITIA
