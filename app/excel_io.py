@@ -20,26 +20,55 @@ from openpyxl.utils import get_column_letter
 from .pipeline import LOCATION_FIELDS
 
 POSTAL_CODE_COLUMN_ALIASES = {"postalcode", "postal_code", "postal code", "pc", "postal"}
+TEMPORARY_ID_COLUMN_ALIASES = {"temporary id", "temporary_id", "temp id", "temp_id", "tempid", "id"}
 
 
 def _normalize_col(name: str) -> str:
     return str(name).strip().lower().replace("_", " ")
 
 
-def _extract_postal_codes(df: pd.DataFrame, source_name: str) -> list[str]:
+def _find_column(df: pd.DataFrame, aliases: set[str]) -> str | None:
+    for c in df.columns:
+        if _normalize_col(c) in aliases:
+            return c
+    return None
+
+
+def _coerce_id(value) -> int | str | None:
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return int(text)
+    except ValueError:
+        return text
+
+
+def _extract_rows(df: pd.DataFrame, source_name: str) -> list[dict]:
+    """Returns [{"temporary_id": ..., "postal_code": ...}, ...]. If the input has its own
+    Temporary ID column, that value is carried through to the output as-is; otherwise rows
+    are numbered sequentially (1, 2, 3, ...) based on their position in the input file."""
     if df.shape[1] == 1:
-        column = df.columns[0]
+        pc_column = df.columns[0]
+        id_column = None
     else:
-        matches = [c for c in df.columns if _normalize_col(c) in POSTAL_CODE_COLUMN_ALIASES]
-        if not matches:
+        pc_column = _find_column(df, POSTAL_CODE_COLUMN_ALIASES)
+        if pc_column is None:
             raise ValueError(
                 f"Could not find a postal code column in {source_name}. "
                 f"Expected a column named one of {sorted(POSTAL_CODE_COLUMN_ALIASES)}, "
                 f"or a single-column file. Found columns: {list(df.columns)}"
             )
-        column = matches[0]
+        id_column = _find_column(df, TEMPORARY_ID_COLUMN_ALIASES)
 
-    return [str(v).strip() for v in df[column].dropna().tolist() if str(v).strip()]
+    rows = []
+    for position, (_, record) in enumerate(df.iterrows(), start=1):
+        postal_code = str(record[pc_column]).strip() if pd.notna(record[pc_column]) else ""
+        if not postal_code:
+            continue
+        temporary_id = _coerce_id(record[id_column]) if id_column is not None else None
+        rows.append({"temporary_id": temporary_id if temporary_id is not None else position, "postal_code": postal_code})
+    return rows
 
 
 def _read_dataframe(source, suffix: str) -> pd.DataFrame:
@@ -51,11 +80,11 @@ def _read_dataframe(source, suffix: str) -> pd.DataFrame:
     raise ValueError(f"Unsupported input file type: {suffix} (expected .csv, .xlsx, or .xls)")
 
 
-def read_postal_codes_from_buffer(buffer, filename: str) -> list[str]:
-    """Same as read_postal_codes, but from an in-memory file-like object (e.g. an
-    uploaded file in the FastAPI batch endpoint) instead of a path on disk."""
+def read_input_rows_from_buffer(buffer, filename: str) -> list[dict]:
+    """Reads an uploaded .csv/.xlsx (in-memory) and returns
+    [{"temporary_id": ..., "postal_code": ...}, ...], one per input row."""
     df = _read_dataframe(buffer, Path(filename).suffix)
-    return _extract_postal_codes(df, filename)
+    return _extract_rows(df, filename)
 
 
 def build_workbook(rows: list[dict]) -> openpyxl.Workbook:

@@ -18,7 +18,7 @@ import io
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import Response
 
-from .excel_io import build_workbook_bytes, read_postal_codes_from_buffer
+from .excel_io import build_workbook_bytes, read_input_rows_from_buffer
 from .pipeline import process_postal_code
 from .routing_provider import GoogleMapsProvider
 
@@ -54,17 +54,17 @@ def estimate(postal_code: str):
 def batch_excel(file: UploadFile = File(...)):
     content = file.file.read()
     try:
-        postal_codes = read_postal_codes_from_buffer(io.BytesIO(content), file.filename)
+        input_rows = read_input_rows_from_buffer(io.BytesIO(content), file.filename)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    if not postal_codes:
+    if not input_rows:
         raise HTTPException(status_code=400, detail="No postal codes found in the uploaded file.")
 
     rows = []
-    for i, postal_code in enumerate(postal_codes, start=1):
-        row = process_postal_code(postal_code, _provider)
-        row["temporary_id"] = i
+    for input_row in input_rows:
+        row = process_postal_code(input_row["postal_code"], _provider)
+        row["temporary_id"] = input_row["temporary_id"]
         rows.append(row)
 
     xlsx_bytes = build_workbook_bytes(rows)
